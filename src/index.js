@@ -22,7 +22,10 @@ app.use('/', (req,res) =>
 
 // MongoDB Connection
 mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log('MongoDB connected'))
+    .then(() => {
+        console.log('MongoDB connected')
+        // deleteAllCollections();
+    })
     .catch((err) => console.error(err));
 
 // Start server
@@ -32,3 +35,22 @@ app.listen(PORT, () => {
     console.log('----------------------------------');
     console.log(`Server running on port ${PORT}`);
 });
+
+
+const deleteAllCollections = async () => {
+    try {
+        // Get a list of all collections
+        const collections = await mongoose.connection.db.listCollections().toArray();
+
+        // Loop through each collection and delete all documents
+        for (let collection of collections) {
+            await mongoose.connection.db.collection(collection.name).deleteMany({});
+            console.log(`Deleted all data from collection: ${collection.name}`);
+        }
+    } catch (err) {
+        console.error('Error deleting data from collections:', err);
+    } finally {
+        // Close the connection after deletion
+        mongoose.connection.close();
+    }
+};
