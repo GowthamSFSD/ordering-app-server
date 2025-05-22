@@ -16,7 +16,7 @@ app.use(express.json());
 
 // Routes
 app.use('/api', allRoutes);
-app.use('/', (req,res) => 
+app.use('/', (req, res) =>
     res.send('Welcome to the Food Delivery API!')
 );
 
@@ -24,6 +24,7 @@ app.use('/', (req,res) =>
 mongoose.connect(process.env.MONGO_URI)
     .then(() => {
         console.log('MongoDB connected')
+        console.log('----------------------------------');
         // deleteAllCollections();
     })
     .catch((err) => console.error(err));
