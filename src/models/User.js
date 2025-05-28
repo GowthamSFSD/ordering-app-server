@@ -10,11 +10,15 @@ const userSchema = new mongoose.Schema({
         unique: true,
         required: true
     },
+    role: {
+        type: String,
+        enum: ['user', 'admin', 'restaurant_owner', 'division_owner', 'sub_division_owner', 'delivery_boy'],
+        default: 'user'
+    },
     createdAt: {
         type: Date,
         default: Date.now
     }
-    // You can add role, phone number, or other fields as needed
 });
 
 module.exports = mongoose.model('User', userSchema);

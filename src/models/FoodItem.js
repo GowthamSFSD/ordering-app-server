@@ -9,18 +9,13 @@ const foodItemSchema = new mongoose.Schema({
         enum: ['Veg', 'Non-Veg', 'Mixed'],
         required: true
     },
-    is_available: {
-        type: String,
-        enum: ["Available", "Non-Available"],
-        required: true
-    },
+    is_available: { type: Boolean, default: true },
     quantity: { type: Number },
     most_tastable: { type: Boolean, default: false },
     image_url: { type: String },
-    isDeleted: {
-        type: Boolean,
-        default: false
-    },
-});
+    description: { type: String },
+    tags: [{ type: String }],
+    isDeleted: { type: Boolean, default: false }
+}, { timestamps: true });
 
 module.exports = mongoose.model('FoodItem', foodItemSchema);

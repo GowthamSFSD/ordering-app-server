@@ -99,12 +99,11 @@ exports.verifyRegisterOtp = async (req, res) => {
     await user.save();
     otpStore.delete(email);
 
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ userId: user._id, name: user.name, email: user.email, role: user.role }, process.env.JWT_SECRET);
 
     res.status(201).json({
         message: 'Registration successful',
         token,
-        user: { id: user._id, name: user.name, email: user.email }
     });
 };
 
@@ -143,7 +142,6 @@ exports.sendLoginOtp = async (req, res) => {
 exports.verifyLoginOtp = async (req, res) => {
     const { email, otp } = req.body;
     if (!email || !otp) return res.status(400).json({ message: 'Email and OTP required' });
-
     const record = otpStore.get(email);
     if (!record || record.otp !== otp || Date.now() > record.expiresAt)
         return res.status(400).json({ message: 'Invalid or expired OTP' });
@@ -153,11 +151,10 @@ exports.verifyLoginOtp = async (req, res) => {
 
     otpStore.delete(email);
 
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+  const token = jwt.sign({ userId: user._id, name: user.name, email: user.email, role: user.role }, process.env.JWT_SECRET);
 
     res.json({
         message: 'Login successful',
-        token,
-        user: { id: user._id, name: user.name, email: user.email }
+        token
     });
 };
