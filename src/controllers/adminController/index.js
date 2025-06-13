@@ -14,8 +14,6 @@ exports.getAllUsers = async (req, res) => {
 exports.changeUserRole = async (req, res) => {
     try {
         const { role } = req.body;
-
-        // Validate role
         const allowedRoles = ['user', 'admin', 'restaurant_owner', 'division_owner', 'sub_division_owner', 'delivery_boy'];
         if (!allowedRoles.includes(role)) {
             return res.status(400).json({ message: 'Invalid role' });
@@ -35,5 +33,5 @@ exports.changeUserRole = async (req, res) => {
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
-  };
+};
 
