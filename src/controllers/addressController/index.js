@@ -1,8 +1,6 @@
 const Address = require('../../models/address');
 
-// Create Address
 exports.createAddress = async (req, res) => {
-
     try {
         const {
             user,
@@ -16,6 +14,14 @@ exports.createAddress = async (req, res) => {
             longitude,
             isDefault
         } = req.body;
+
+        // 🛑 If this address is default, make others non-default first
+        if (isDefault) {
+            await Address.updateMany(
+                { user, isDefault: true },
+                { $set: { isDefault: false } }
+            );
+        }
 
         const newAddress = new Address({
             user,
@@ -33,11 +39,13 @@ exports.createAddress = async (req, res) => {
         });
 
         const savedAddress = await newAddress.save();
+
         res.status(201).json({ success: true, data: savedAddress });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
 };
+
 
 // Get all addresses for a user
 exports.getUserAddresses = async (req, res) => {
