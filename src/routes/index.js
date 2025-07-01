@@ -7,6 +7,7 @@ const foodRoutes = require('../routes/food');
 const authRoutes = require('../routes/auth');
 const adminRoutes = require('../routes/admin');
 const addressRoutes = require('../routes/address');
+const orderRoutes = require('../routes/order');
 
 // Middlewares
 const optionalAuth = require('../middleware/optionalAuth');
@@ -16,7 +17,9 @@ router.use('/auth', authRoutes);
 
 router.use('/food', optionalAuth, foodRoutes);
 router.use('/restaurant', restaurantRoutes);
-router.use('/address', addressRoutes);
+router.use('/address', optionalAuth, addressRoutes);
+
+router.use('/order', optionalAuth, orderRoutes);
 
 router.use('/admin', adminRoutes);
 

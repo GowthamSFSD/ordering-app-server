@@ -3,7 +3,6 @@ const Address = require('../../models/address');
 exports.createAddress = async (req, res) => {
     try {
         const {
-            user,
             addressLine1,
             addressLine2,
             city,
@@ -15,7 +14,9 @@ exports.createAddress = async (req, res) => {
             isDefault
         } = req.body;
 
-        // 🛑 If this address is default, make others non-default first
+        const user = req.user.userId;
+
+   
         if (isDefault) {
             await Address.updateMany(
                 { user, isDefault: true },
@@ -40,17 +41,16 @@ exports.createAddress = async (req, res) => {
 
         const savedAddress = await newAddress.save();
 
-        res.status(201).json({ success: true, data: savedAddress });
+        res.status(201).json({ success: true , data: savedAddress });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
 };
 
-
 // Get all addresses for a user
 exports.getUserAddresses = async (req, res) => {
     try {
-        const { userId } = req.params;
+        const { userId } = req.user;
 
         const addresses = await Address.find({ user: userId });
         res.status(200).json({ success: true, data: addresses });
@@ -65,6 +65,21 @@ exports.updateAddress = async (req, res) => {
         const { addressId } = req.params;
         const updateData = req.body;
 
+        // Get the existing address (so we can grab the user ID)
+        const existingAddress = await Address.findById(addressId);
+        if (!existingAddress) {
+            return res.status(404).json({ success: false, message: 'Address not found' });
+        }
+
+        // If setting as default, unset isDefault for other addresses
+        if (updateData.isDefault) {
+            await Address.updateMany(
+                { user: existingAddress.user, isDefault: true, _id: { $ne: addressId } },
+                { $set: { isDefault: false } }
+            );
+        }
+
+        // Handle geo location update if provided
         if (updateData.latitude && updateData.longitude) {
             updateData.location = {
                 type: 'Point',
@@ -75,8 +90,6 @@ exports.updateAddress = async (req, res) => {
         const updated = await Address.findByIdAndUpdate(addressId, updateData, {
             new: true
         });
-
-        if (!updated) return res.status(404).json({ success: false, message: 'Address not found' });
 
         res.status(200).json({ success: true, data: updated });
     } catch (err) {
